@@ -8,6 +8,8 @@ import com.mongodb.DBObject;
 import nosql.workshop.model.Equipement;
 import nosql.workshop.model.Installation;
 import nosql.workshop.model.stats.CountByActivity;
+import org.jongo.Distinct;
+import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 
 import java.io.IOException;
@@ -71,10 +73,7 @@ public class InstallationService {
         int random = new Random().nextInt((int) count);
         // TODO - DONE - codez le service
         Installation installation = null;
-        for (Installation i : installations.find().limit(1).skip(random).as(Installation.class)){
-            installation = i;
-        }
-        return installation;
+        return installations.find().skip(random).limit(1).as(Installation.class).next();
     }
 
     /**
@@ -98,6 +97,7 @@ public class InstallationService {
 
         DBObject sort = new BasicDBObject("$sort", "-1");
         this.installations.aggregate(project.toString(), sort);
+        return null;
     }
 
     /**
@@ -107,15 +107,16 @@ public class InstallationService {
      */
     public List<CountByActivity> countByActivity() {
         // TODO codez le service
+
         List<CountByActivity> listCountByActivities = new ArrayList<CountByActivity>();
-        /*
-        for (Installation i : installations.find().count()){
+/*
+        Distinct test = installations.distinct("equipements.activites");
+
+        test.
             CountByActivity countByActivity = new CountByActivity();
-            countByActivity.setActivite("");
-            countByActivity.setTotal(0);
-            listCountByActivities.add(countByActivity);
+            countByActivity.setActivite(s);
         }
-        */
+*/
         return listCountByActivities;
     }
 

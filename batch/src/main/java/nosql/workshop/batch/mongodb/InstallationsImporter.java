@@ -64,7 +64,11 @@ public class InstallationsImporter {
         locationObject.put("coordinates",coordinates);
         basicDBObject.put("location",locationObject);
         // Others fields
-        basicDBObject.put("multiCommune", columns[16]);
+        if (columns[16].equalsIgnoreCase("Non")){
+            basicDBObject.put("multiCommune", false);
+        }else{
+            basicDBObject.put("multiCommune", true);
+        }
         basicDBObject.put("nbPlacesParking" ,columns[17]);
         basicDBObject.put("nbPlacesParkingHandicapes", columns[18]);
         // Date field
@@ -76,7 +80,7 @@ public class InstallationsImporter {
             String input = columns[28];
             input = input.substring(0,10);
             DateTime dateTime = formatter.parseDateTime(input);
-            basicDBObject.put("dateMiseAJourFiche", dateTime.toString());
+            basicDBObject.put("dateMiseAJourFiche", dateTime.toDate());
         }
         // Equipements field
         EquipementsImporter tableauEquipement[] = {};
