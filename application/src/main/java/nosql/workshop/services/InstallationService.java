@@ -97,9 +97,8 @@ public class InstallationService {
         DBObject project = new BasicDBObject("$project", fields);
 
         DBObject sort = new BasicDBObject("$sort", "-1");
-        this.installations.aggregate(project.toString(), sort);
 
-        throw new UnsupportedOperationException();
+        return this.installations.findOne(project.toString(), sort).as(Installation.class);
     }
 
     /**
