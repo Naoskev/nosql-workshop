@@ -3,6 +3,8 @@ package nosql.workshop.services;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 import nosql.workshop.model.Equipement;
 import nosql.workshop.model.Installation;
 import nosql.workshop.model.stats.CountByActivity;
@@ -91,8 +93,11 @@ public class InstallationService {
      */
     public Installation installationWithMaxEquipments() {
         // TODO codez le service
+        DBObject fields = new BasicDBObject("nbEquipements", "{$size : $equipements}");
+        DBObject project = new BasicDBObject("$project", fields);
 
-        throw new UnsupportedOperationException();
+        DBObject sort = new BasicDBObject("$sort", "-1");
+        this.installations.aggregate(project.toString(), sort);
     }
 
     /**
@@ -102,13 +107,15 @@ public class InstallationService {
      */
     public List<CountByActivity> countByActivity() {
         // TODO codez le service
-        List<CountByActivity> listCountByActivities = new ArrayList<CountByActivity>()
+        List<CountByActivity> listCountByActivities = new ArrayList<CountByActivity>();
+        /*
         for (Installation i : installations.find().count()){
             CountByActivity countByActivity = new CountByActivity();
             countByActivity.setActivite("");
             countByActivity.setTotal(0);
             listCountByActivities.add(countByActivity);
         }
+        */
         return listCountByActivities;
     }
 
