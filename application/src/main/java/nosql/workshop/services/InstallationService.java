@@ -108,7 +108,16 @@ public class InstallationService {
      */
     public List<CountByActivity> countByActivity() {
         // TODO codez le service
-        throw new UnsupportedOperationException();
+        List<CountByActivity> listCountByActivities = new ArrayList<CountByActivity>();
+        /*
+        for (Installation i : installations.find().count()){
+            CountByActivity countByActivity = new CountByActivity();
+            countByActivity.setActivite("");
+            countByActivity.setTotal(0);
+            listCountByActivities.add(countByActivity);
+        }
+        */
+        return listCountByActivities;
     }
 
     public double averageEquipmentsPerInstallation() {
