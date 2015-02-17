@@ -93,12 +93,19 @@ public class InstallationService {
      */
     public Installation installationWithMaxEquipments() {
         // TODO codez le service
+/*
         DBObject fields = new BasicDBObject("nbEquipements", "{$size : $equipements}");
         DBObject project = new BasicDBObject("$project", fields);
 
-        DBObject sort = new BasicDBObject("$sort", "-1");
+        DBObject sort = new BasicDBObject("$sort", new BasicDBObject("nbEquipements", "-1"));
+*/
+//         this.installations.aggregate(project.toString(), sort).and("$limit","1").as(Installation.class).iterator().next();
 
-        return this.installations.findOne(project.toString(), sort).as(Installation.class);
+        return installations.aggregate("{$project: {nbEquipements : { $size: \"$equipements\"},nom: 1,equipements: 1}}")
+                .and("{$sort:{\"nbEquipements\" : -1}}")
+                .and("{$limit : 1}")
+                .as(Installation.class).iterator().next();
+
     }
 
     /**
