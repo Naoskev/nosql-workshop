@@ -69,13 +69,15 @@ public class InstallationsImporter {
         basicDBObject.put("nbPlacesParkingHandicapes", columns[18]);
         // Date field
         TimeZone tz = TimeZone.getTimeZone("UTC");
-        DateTimeZone timeZone = DateTimeZone.forID( "Europe/Paris" );
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("MM-dd-yyyy").withZone( timeZone );
-        String input = columns[29];
-        DateTime dateTime = formatter.parseDateTime( input );
-        String iso8601String = dateTime.toString();
-        DateTime dateTime2 = new DateTime( iso8601String, timeZone );
-        basicDBObject.put("dateMiseAJourFiche", formatter.print(dateTime2));
+        DateTimeZone timeZone = DateTimeZone.forID("Europe/Paris");
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd").withZone( timeZone );
+        // Check if there is a date
+        if (columns.length > 28){
+            String input = columns[28];
+            input = input.substring(0,10);
+            DateTime dateTime = formatter.parseDateTime(input);
+            basicDBObject.put("dateMiseAJourFiche", dateTime.toString());
+        }
         // Equipements field
         EquipementsImporter tableauEquipement[] = {};
         basicDBObject.put("equipements", tableauEquipement);
