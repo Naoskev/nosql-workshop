@@ -44,7 +44,7 @@ public class InstallationService {
      */
     public Installation get(String numero) {
         // TODO - DONE - codez le service
-        return installations.findOne(new BasicDBObject("_id",numero).toString()).as(Installation.class);
+        return installations.findOne(new BasicDBObject("_id", numero).toString()).as(Installation.class);
     }
 
     /**
@@ -106,23 +106,18 @@ public class InstallationService {
      * @return le nombre d'installations par activité.
      */
     public List<CountByActivity> countByActivity() {
-        // TODO codez le service
-
-        List<CountByActivity> listCountByActivities = new ArrayList<CountByActivity>();
-/*
-        Distinct test = installations.distinct("equipements.activites");
-
-        test.
-            CountByActivity countByActivity = new CountByActivity();
-            countByActivity.setActivite(s);
-        }
-*/
-        return listCountByActivities;
+        // TODO - DONE - codez le service
+        return installations.aggregate("{$unwind: '$equipements'}")
+                .and("{$unwind: '$equipements.activities'")
+                .and("$group: { _id : '$equipements.activites', total : {$sum : 1}}}")
+                .and("{$project: {_id: 0 , activite : '$_id', total : 1}}")
+                .and("$sort: {total : -1}}").as(CountByActivity.class);
     }
 
     public double averageEquipmentsPerInstallation() {
         // TODO codez le service
-        throw new UnsupportedOperationException();
+
+        return 0;
     }
 
     /**
