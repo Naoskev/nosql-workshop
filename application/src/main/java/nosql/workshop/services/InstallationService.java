@@ -7,6 +7,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import nosql.workshop.model.Equipement;
 import nosql.workshop.model.Installation;
+import nosql.workshop.model.stats.Average;
 import nosql.workshop.model.stats.CountByActivity;
 import org.jongo.Distinct;
 import org.jongo.Jongo;
@@ -115,9 +116,9 @@ public class InstallationService {
     }
 
     public double averageEquipmentsPerInstallation() {
-        // TODO codez le service
-
-        return 0;
+        // TODO - DONE - codez le service
+        return installations.aggregate("{$group: {_id: null, avg  : {$avg : '$equipements'}}}}")
+                .and("{$project: {_id: 0, avg : 1}}").as(Average.class).get(0).getAverage();
     }
 
     /**
