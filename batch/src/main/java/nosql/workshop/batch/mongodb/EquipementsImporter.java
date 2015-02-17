@@ -31,5 +31,6 @@ public class EquipementsImporter {
         String installationId = columns[2];
 
         // TODO codez la mise à jour de l'installation pour ajouter ses équipements
+
     }
 }

@@ -6,6 +6,9 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.common.xcontent.XContentHelper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -48,6 +51,25 @@ public class ImportTowns {
         Double latitude = Double.valueOf(split[7]);
 
         // TODO ajoutez le code permettant d'insérer la ville
+
+        try {
+            XContentBuilder builder = XContentFactory.jsonBuilder()
+                    .startObject()
+                    .field("townName", townName)
+                    .field("postalCode", split[3])
+                    .field("country", split[4])
+                    .field("region", split[5])
+                    .field("longitude", longitude)
+                    .field("latitude", latitude)
+                    .endObject();
+
+            bulkRequest.add(elasticSearchClient.prepareIndex("paysLoire", "town")
+                .setSource(builder));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 
     }
 }
