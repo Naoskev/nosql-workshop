@@ -35,6 +35,7 @@ public class ActivitesImporter {
             String equipementId = columns[2].trim();
 
             // TODO codez la mise à jour de l'installation pour rattacher les activités à ses équipements
+
         }
     }
 }

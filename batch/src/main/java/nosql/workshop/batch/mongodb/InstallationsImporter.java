@@ -3,8 +3,17 @@ package nosql.workshop.batch.mongodb;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
+import org.elasticsearch.common.joda.time.DateTime;
+import org.elasticsearch.common.joda.time.DateTimeZone;
+import org.elasticsearch.common.joda.time.format.DateTimeFormat;
+import org.elasticsearch.common.joda.time.format.DateTimeFormatter;
+import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
 
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Importe les 'installations' dans MongoDB.
@@ -36,22 +45,37 @@ public class InstallationsImporter {
                 .split("\",\"");
 
         // TODO créez le document à partir de la ligne CSV
-        //"Nom usuel de l'installation","Numéro de l'installation","Nom de la commune","Code INSEE","Code postal",
-        // "Nom du lieu dit","Numero de la voie","Nom de la voie","location","Longitude","Latitude",
-        // "Aucun aménagement d'accessibilité","Accessibilité handicapés à mobilité réduite",
-        // "Accessibilité handicapés sensoriels","Emprise foncière en m2","Gardiennée avec ou sans logement de gardien",
-        // "Multi commune","Nombre total de place de parking","Nombre total de place de parking handicapés",
-        // "Installation particulière","Desserte métro","Desserte bus","Desserte Tram","Desserte train","Desserte bateau",
-        // "Desserte autre","Nombre total d'équipements sportifs","Nombre total de fiches équipements",
-        // "Date de mise à jour de la fiche installation"
-
         // Create the first to field
         BasicDBObject basicDBObject = new BasicDBObject();
         basicDBObject.put("_id",columns[1]);
         basicDBObject.put("nom",columns[0]);
         //Create the address field
         BasicDBObject addressObject = new BasicDBObject();
-        addressObject.put("numero",);
+        addressObject.put("numero",columns[6]);
+        addressObject.put("voie",columns[7]);
+        addressObject.put("lieuDit",columns[5]);
+        addressObject.put("codePostal",columns[4]);
+        addressObject.put("commune",columns[2]);
+        basicDBObject.put("adresse",addressObject);
+        // Create the location field
+        BasicDBObject locationObject = new BasicDBObject();
+        String coordinates [] = {columns[9],columns[10]};
+        locationObject.put("type","Point");
+        locationObject.put("coordinates",coordinates);
+        basicDBObject.put("location",locationObject);
+        // Others fields
+        basicDBObject.put("multiCommune", columns[16]);
+        basicDBObject.put("nbPlacesParking" ,columns[17]);
+        basicDBObject.put("nbPlacesParkingHandicapes", columns[18]);
+        // Date field
+        TimeZone tz = TimeZone.getTimeZone("UTC");
+        DateTimeZone timeZone = DateTimeZone.forID( "Europe/Paris" );
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("MM-dd-yyyy").withZone( timeZone );
+        String input = columns[29];
+        DateTime dateTime = formatter.parseDateTime( input );
+        String iso8601String = dateTime.toString();
+        DateTime dateTime2 = new DateTime( iso8601String, timeZone );
+        basicDBObject.put("dateMiseAJourFiche", formatter.print(dateTime2));
 
         return new BasicDBObject();
     }
