@@ -45,7 +45,7 @@ public class InstallationsImporter {
                 .split("\",\"");
 
         // TODO créez le document à partir de la ligne CSV
-        // Create the first to field
+        // Create the first fields
         BasicDBObject basicDBObject = new BasicDBObject();
         basicDBObject.put("_id",columns[1]);
         basicDBObject.put("nom",columns[0]);
@@ -76,7 +76,10 @@ public class InstallationsImporter {
         String iso8601String = dateTime.toString();
         DateTime dateTime2 = new DateTime( iso8601String, timeZone );
         basicDBObject.put("dateMiseAJourFiche", formatter.print(dateTime2));
+        // Equipements field
+        EquipementsImporter tableauEquipement[] = {};
+        basicDBObject.put("equipements", tableauEquipement);
 
-        return new BasicDBObject();
+        return basicDBObject;
     }
 }
