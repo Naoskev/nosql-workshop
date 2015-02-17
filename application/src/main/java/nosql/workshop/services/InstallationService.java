@@ -91,8 +91,8 @@ public class InstallationService {
      */
     public Installation installationWithMaxEquipments() {
         // TODO codez le service
-        return installations.aggregate("{$project: {nbEquipements : { $size: \"$equipements\"},nom: 1,equipements: 1}}")
-                .and("{$sort:{\"nbEquipements\" : -1}}")
+        return installations.aggregate("{$project: {nbEquipements : { $size: '$equipements'},nom: 1, equipements: 1}}")
+                .and("{$sort:{'nbEquipements' : -1}}")
                 .and("{$limit : 1}")
                 .as(Installation.class).get(0);
     }
@@ -105,10 +105,10 @@ public class InstallationService {
     public List<CountByActivity> countByActivity() {
         // TODO - DONE - codez le service
         return installations.aggregate("{$unwind: '$equipements'}")
-                .and("{$unwind: '$equipements.activities'")
-                .and("$group: { _id : '$equipements.activites', total : {$sum : 1}}}")
-                .and("{$project: {_id: 0 , activite : '$_id', total : 1}}")
-                .and("$sort: {total : -1}}").as(CountByActivity.class);
+                .and("{$unwind: '$equipements.activites'}")
+                .and("{$group: { _id : '$equipements.activites', count : {$sum : 1}}}")
+                .and("{$project: {_id: 0 , activite : '$_id', count : 1}}")
+                .and("{$sort: {count : -1}}").as(CountByActivity.class);
     }
 
     public double averageEquipmentsPerInstallation() {
