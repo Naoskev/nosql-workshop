@@ -39,14 +39,11 @@ public class ActivitesImporter {
 
             // TODO codez la mise à jour de l'installation pour rattacher les activités à ses équipements
             BasicDBObject updateQuery = new BasicDBObject();
-
             // Création d'une nouvelle activité dans la liste d'activitées
             updateQuery.append("$push", new BasicDBObject().append("equipements.$.activites", columns[5]));
-
             // Mise à jour de tous les équipements ayant pour id <equipementId>
             DBObject searchQuery = new QueryBuilder().start("equipements").elemMatch(new BasicDBObject("numero", equipementId)).get();
-
-            this.installationsCollection.update(searchQuery, updateQuery, false, true);
+            this.installationsCollection.update(searchQuery, updateQuery);
         }
     }
 }
