@@ -12,13 +12,11 @@ import nosql.workshop.model.stats.CountByActivity;
 import org.jongo.Distinct;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
+import org.jongo.MongoCursor;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Service permettant de manipuler les installations sportives.
@@ -93,12 +91,10 @@ public class InstallationService {
      */
     public Installation installationWithMaxEquipments() {
         // TODO codez le service
-        DBObject fields = new BasicDBObject("nbEquipements", "{$size : $equipements}");
-        DBObject project = new BasicDBObject("$project", fields);
-
-        DBObject sort = new BasicDBObject("$sort", "-1");
-        this.installations.aggregate(project.toString(), sort);
-        return null;
+        return installations.aggregate("{$project: {nbEquipements : { $size: \"$equipements\"},nom: 1,equipements: 1}}")
+                .and("{$sort:{\"nbEquipements\" : -1}}")
+                .and("{$limit : 1}")
+                .as(Installation.class).get(0);
     }
 
     /**
@@ -129,7 +125,21 @@ public class InstallationService {
      */
     public List<Installation> search(String searchQuery) {
         // TODO codez le service
-        throw new UnsupportedOperationException();
+
+        DBObject textScore =new BasicDBObject("$meta", "textScore");
+        DBObject projectionAndSort = new BasicDBObject("score", textScore);
+        installations.getDBCollection().createIndex(new BasicDBObject("nom", "text"));
+
+        MongoCursor<Installation> cursor = installations.find("{$text: {$search:  \""+searchQuery+"\", $language: 'french'} }")
+               .projection(projectionAndSort.toString())
+               .sort(projectionAndSort.toString())
+               .as(Installation.class);
+
+        List<Installation> list = new ArrayList<>();
+        for(Installation i : cursor){
+            list.add(i);
+        }
+        return list;
     }
 
     /**
