@@ -44,7 +44,7 @@ public class InstallationService {
      */
     public Installation get(String numero) {
         // TODO - DONE - codez le service
-        return installations.findOne("{_id: " + numero + "}").as(Installation.class);
+        return installations.findOne(new BasicDBObject("_id",numero).toString()).as(Installation.class);
     }
 
     /**
