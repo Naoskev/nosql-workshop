@@ -90,7 +90,7 @@ public class InstallationService {
      * @return l'installation avec le plus d'équipements.
      */
     public Installation installationWithMaxEquipments() {
-        // TODO codez le service
+        // TODO - DONE - codez le service
         return installations.aggregate("{$project: {nbEquipements : { $size: '$equipements'},nom: 1, equipements: 1}}")
                 .and("{$sort:{'nbEquipements' : -1}}")
                 .and("{$limit : 1}")
@@ -104,17 +104,16 @@ public class InstallationService {
      */
     public List<CountByActivity> countByActivity() {
         // TODO - DONE - codez le service
-        return installations.aggregate("{$unwind: '$equipements'}")
-                .and("{$unwind: '$equipements.activites'}")
-                .and("{$group: { _id : '$equipements.activites', count : {$sum : 1}}}")
-                .and("{$project: {_id: 0 , activite : '$_id', count : 1}}")
-                .and("{$sort: {count : -1}}").as(CountByActivity.class);
+        return installations.aggregate(
+                "{$unwind: '$equipements'}").and("{$unwind: '$equipements.activites'}")
+                .and("{$group: { _id : '$equipements.activites', compteur : {$sum : 1}}}")
+                .and("{$project: {_id: 0 , activite : '$_id', compteur : 1}}").and("{$sort: {compteur : -1}}")
+                .as(CountByActivity.class);
     }
 
     public double averageEquipmentsPerInstallation() {
         // TODO - DONE - codez le service
-        return installations.aggregate("{$group: {_id: null, avg  : {$avg : '$equipements'}}}}")
-                .and("{$project: {_id: 0, avg : 1}}").as(Average.class).get(0).getAverage();
+        return (installations.aggregate("{$unwind: '$equipements'}").as(Average.class).size() / installations.count());
     }
 
     /**
@@ -124,25 +123,15 @@ public class InstallationService {
      * @return les résultats correspondant à la requête.
      */
     public List<Installation> search(String searchQuery) {
-        // TODO codez le service
+        // TODO - Done- codez le service
 
         DBObject textScore =new BasicDBObject("$meta", "textScore");
         DBObject projectionAndSort = new BasicDBObject("score", textScore);
 
-        DBObject index = new BasicDBObject("nom", "text")
-                .append("adresse.commune", "text");
-        DBObject weights = new BasicDBObject("nom", 3)
-                .append("adresse.commune", 10);
-        DBObject options = new BasicDBObject("weight", weights)
-                .append("default_language", "french");
-
-        installations.getDBCollection().createIndex(index, options);
-
         MongoCursor<Installation> cursor = installations.find("{$text: {$search:  \""+searchQuery+"\", $language: 'french'} }")
-                .projection(projectionAndSort.toString())
-                .sort(projectionAndSort.toString())
-                .limit(10)
-                .as(Installation.class);
+               .projection(projectionAndSort.toString())
+               .sort(projectionAndSort.toString())
+               .as(Installation.class);
 
         List<Installation> list = new ArrayList<>();
         for(Installation i : cursor){
