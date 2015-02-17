@@ -1,11 +1,17 @@
 package nosql.workshop.services;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
+import nosql.workshop.model.Equipement;
 import nosql.workshop.model.Installation;
 import nosql.workshop.model.stats.CountByActivity;
 import org.jongo.MongoCollection;
 
+import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -33,8 +39,8 @@ public class InstallationService {
      * @return l'installation correspondante, ou <code>null</code> si non trouvée.
      */
     public Installation get(String numero) {
-        // TODO codez le service
-        throw new UnsupportedOperationException();
+        // TODO - DONE - codez le service
+        return installations.findOne("{_id: " + numero + "}").as(Installation.class);
     }
 
     /**
@@ -45,8 +51,12 @@ public class InstallationService {
      * @return la liste des installations.
      */
     public List<Installation> list(int page, int pageSize) {
-        // TODO codez le service
-        throw new UnsupportedOperationException();
+        // TODO - DONE - codez le service
+        List<Installation> listInstallation = new ArrayList<Installation>();
+        for (Installation i : installations.find().skip((page - 1) * pageSize).limit(pageSize).as(Installation.class)) {
+            listInstallation.add(i);
+        }
+        return listInstallation;
     }
 
     /**
@@ -57,8 +67,12 @@ public class InstallationService {
     public Installation random() {
         long count = count();
         int random = new Random().nextInt((int) count);
-        // TODO codez le service
-        throw new UnsupportedOperationException();
+        // TODO - DONE - codez le service
+        Installation installation = null;
+        for (Installation i : installations.find().limit(1).skip(random).as(Installation.class)){
+            installation = i;
+        }
+        return installation;
     }
 
     /**

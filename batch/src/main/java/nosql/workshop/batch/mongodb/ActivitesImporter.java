@@ -37,7 +37,7 @@ public class ActivitesImporter {
         if (columns.length >= 6) {
             String equipementId = columns[2].trim();
 
-            // TODO codez la mise à jour de l'installation pour rattacher les activités à ses équipements
+            // TODO - DONE - codez la mise à jour de l'installation pour rattacher les activités à ses équipements
             BasicDBObject updateQuery = new BasicDBObject();
             // Création d'une nouvelle activité dans la liste d'activitées
             updateQuery.append("$push", new BasicDBObject().append("equipements.$.activites", columns[5]));

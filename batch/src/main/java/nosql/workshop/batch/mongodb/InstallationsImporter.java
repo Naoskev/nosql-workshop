@@ -44,7 +44,7 @@ public class InstallationsImporter {
                 .substring(1, line.length() - 1)
                 .split("\",\"");
 
-        // TODO créez le document à partir de la ligne CSV
+        // TODO - DONE - créez le document à partir de la ligne CSV
         // Create the first fields
         BasicDBObject basicDBObject = new BasicDBObject();
         basicDBObject.put("_id",columns[1]);

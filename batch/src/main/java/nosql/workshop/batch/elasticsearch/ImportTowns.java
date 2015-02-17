@@ -50,8 +50,7 @@ public class ImportTowns {
         Double longitude = Double.valueOf(split[6]);
         Double latitude = Double.valueOf(split[7]);
 
-        // TODO ajoutez le code permettant d'insérer la ville
-
+        // TODO - DONE - ajoutez le code permettant d'insérer la ville
         try {
             XContentBuilder builder = XContentFactory.jsonBuilder()
                     .startObject()

@@ -31,7 +31,7 @@ public class EquipementsImporter {
 
         String installationId = columns[2];
 
-        // TODO codez la mise à jour de l'installation pour ajouter ses équipements
+        // TODO - DONE - codez la mise à jour de l'installation pour ajouter ses équipements
 
         // Create the first fields
         BasicDBObject equipementObject = new BasicDBObject();
