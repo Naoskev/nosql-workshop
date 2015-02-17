@@ -47,6 +47,6 @@ public class EquipementsImporter {
         BasicDBObject updateDocument = new BasicDBObject();
         updateDocument.put("$push", new BasicDBObject("equipements", equipementObject));
         BasicDBObject searchQuery = new BasicDBObject().append("_id", installationId);
-        installationsCollection.update(searchQuery, updateDocument, true, true);
+        installationsCollection.update(searchQuery, updateDocument);
     }
 }
