@@ -86,10 +86,10 @@ public class SearchService {
     }
 
     /**
-     * Transforme un résultat de recherche ES en objet installation.
+     * Transforme un résultat de recherche ES en objet townSuggest.
      *
      * @param searchHit l'objet ES.
-     * @return l'installation.
+     * @return townSuggest.
      */
     private TownSuggest mapToTownSuggest(SearchHit searchHit) {
         try {
@@ -101,9 +101,8 @@ public class SearchService {
 
     public List<TownSuggest> suggestTownName(String townName){
         // TODO - DONE - codez le service
-
         SearchResponse response = elasticSearchClient.prepareSearch(TOWNS_INDEX)
-                .setTypes(TOWNS_INDEX)
+                .setTypes(TOWN_TYPE)
                 .setQuery(QueryBuilders.wildcardQuery("townName", townName + "*"))
                 .execute()
                 .actionGet();
@@ -117,7 +116,17 @@ public class SearchService {
 
     public Double[] getTownLocation(String townName) {
         // TODO codez le service
+        SearchResponse response = elasticSearchClient.prepareSearch(TOWNS_INDEX)
+                .setTypes(TOWN_TYPE)
+                .setQuery(QueryBuilders.wildcardQuery("townName", townName + "*"))
+                .execute()
+                .actionGet();
 
+        List<TownSuggest> townSuggestList = new ArrayList<TownSuggest>();
+        for (SearchHit sh : response.getHits()) {
+            townSuggestList.add(mapToTownSuggest(sh));
+        }
+        //return townSuggestList;
         throw new UnsupportedOperationException();
     }
 }
