@@ -120,20 +120,22 @@ public class SearchService {
     public Double[] getTownLocation(String townName) {
         // TODO codez le service
         QueryBuilder query = QueryBuilders.matchQuery("townName", townName);
-
+        Double[] location = null;
 
         try {
-            SearchResponse response = this.elasticSearchClient.prepareSearch("towns","town").setQuery(query).execute().get();
-            if(response.getHits().totalHits() > 0){
+            SearchResponse response = this.elasticSearchClient.prepareSearch(TOWNS_INDEX)
+                    .setTypes(TOWN_TYPE)
+                    .setQuery(query)
+                    .execute().get();
 
+            if(response.getHits().totalHits() > 0){
+                location = mapToTownSuggest(response.getHits().getAt(0)).getLocation();
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
-
-
-        throw new UnsupportedOperationException();
+        return location;
     }
 }
