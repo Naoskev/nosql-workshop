@@ -24,6 +24,7 @@ import org.elasticsearch.index.query.QueryBuilders.*;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 /**
  *
