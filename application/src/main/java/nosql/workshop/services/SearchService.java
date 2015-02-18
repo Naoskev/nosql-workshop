@@ -9,6 +9,7 @@ import com.google.inject.name.Named;
 import nosql.workshop.model.Installation;
 import nosql.workshop.model.suggest.TownSuggest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.action.suggest.SuggestResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
@@ -18,6 +19,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.suggest.Suggest;
 import org.elasticsearch.search.suggest.term.TermSuggestionBuilder;
 import org.elasticsearch.index.query.QueryBuilders.*;
@@ -117,24 +119,16 @@ public class SearchService {
     }
 
     public Double[] getTownLocation(String townName) {
-        // TODO codez le service
-        QueryBuilder query = QueryBuilders.matchQuery("townName", townName);
-        Double[] location = null;
+        // TODO - DONE - codez le service
 
-        try {
-            SearchResponse response = this.elasticSearchClient.prepareSearch(TOWNS_INDEX)
-                    .setTypes(TOWN_TYPE)
-                    .setQuery(query)
-                    .execute().get();
+        SearchResponse response = elasticSearchClient.prepareSearch(TOWNS_INDEX)
+                .setTypes(TOWN_TYPE)
+                .setQuery(QueryBuilders.wildcardQuery("townName", townName + "*"))
+                .addSort(SortBuilders.scoreSort())
+                .setSize(1)
+                .execute()
+                .actionGet();
 
-            if(response.getHits().totalHits() > 0){
-                location = mapToTownSuggest(response.getHits().getAt(0)).getLocation();
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-        return location;
+        return mapToTownSuggest(response.getHits().getAt(0)).getLocation();
     }
 }
