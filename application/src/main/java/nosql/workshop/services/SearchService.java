@@ -85,6 +85,23 @@ public class SearchService {
     public List<TownSuggest> suggestTownName(String townName){
         // TODO codez le service
 
+        SearchResponse response = elasticSearchClient.prepareSearch(TOWNS_INDEX)
+                .setTypes(TOWN_TYPE)
+                .setQuery(QueryBuilders.queryString(townName))
+                .execute()
+                .actionGet();
+
+        List<TownSuggest> townSuggestList = new ArrayList<TownSuggest>();
+
+        try {
+            for (SearchHit sh : response.getHits()) {
+                TownSuggest townSuggest = new TownSuggest(sh.,new ArrayList<Double>());
+                townSuggestList.add(townSuggest);
+            }
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+
         throw new UnsupportedOperationException();
     }
 
