@@ -10,12 +10,14 @@ import com.mongodb.QueryBuilder;
 import nosql.workshop.model.Installation;
 import nosql.workshop.model.suggest.TownSuggest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.suggest.SuggestResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.suggest.Suggest;
 import org.elasticsearch.search.suggest.term.TermSuggestionBuilder;
 
 import java.io.IOException;
@@ -41,6 +43,7 @@ public class SearchService {
 
     @Inject
     public SearchService(@Named(ES_HOST) String host, @Named(ES_TRANSPORT_PORT) int transportPort) {
+        
         elasticSearchClient = new TransportClient().addTransportAddress(new InetSocketTransportAddress(host, transportPort));
 
         objectMapper = new ObjectMapper();
@@ -59,16 +62,13 @@ public class SearchService {
         SearchResponse response = elasticSearchClient.prepareSearch(INSTALLATIONS_INDEX)
                 .setTypes(INSTALLATION_TYPE)
                 .setQuery(QueryBuilders.queryString(searchQuery))
+                .setFrom(0).setSize(60)
                 .execute()
                 .actionGet();
 
         List<Installation> installationList = new ArrayList<Installation>();
-        try {
-            for (SearchHit sh : response.getHits()) {
-                installationList.add(objectMapper.readValue(sh.getSourceAsString(), Installation.class));
-            }
-        } catch (IOException e){
-            e.printStackTrace();
+        for (SearchHit sh : response.getHits()) {
+            installationList.add(mapToInstallation(sh));
         }
         return installationList;
     }
@@ -89,26 +89,30 @@ public class SearchService {
 
     public List<TownSuggest> suggestTownName(String townName){
         // TODO codez le service
-
-        SearchResponse response = elasticSearchClient.prepareSuggest(TOWNS_INDEX)
-                .addSuggestion(new TermSuggestionBuilder("term").field(""))
-                //.setQuery(QueryBuilders.queryString(townName))
-                //.execute()
-                //.actionGet();
+        /*
+        SuggestResponse response = elasticSearchClient.prepareSuggest(TOWNS_INDEX)
+                .addSuggestion(new TermSuggestionBuilder("term").field("c_nm").text(townName).size(1))
+                .execute()
+                .actionGet();
 
         List<TownSuggest> townSuggestList = new ArrayList<TownSuggest>();
+
         try {
-            for (SearchHit sh : response.getHits()){
-                townSuggestList.add(objectMapper.readValue(sh.getSourceAsString(), TownSuggest.class));
+
+            for (Suggest s : response.getSuggest()){
+                townSuggestList.add(objectMapper.readValue(s.toString(), TownSuggest.class));
             }
+
         } catch (JsonMappingException e1) {
             e1.printStackTrace();
         } catch (JsonParseException e1) {
             e1.printStackTrace();
         } catch (IOException e1) {
             e1.printStackTrace();
+
         }
-        return townSuggestList;
+        */
+        throw new UnsupportedOperationException();
     }
 
     public Double[] getTownLocation(String townName) {
