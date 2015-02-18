@@ -5,6 +5,7 @@ import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
@@ -23,7 +24,8 @@ import static nosql.workshop.batch.elasticsearch.util.ElasticSearchBatchUtils.de
 public class ImportTowns {
     public static void main(String[] args) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(ImportTowns.class.getResourceAsStream("/csv/towns_paysdeloire.csv")));
-             Client elasticSearchClient = new TransportClient().addTransportAddress(new InetSocketTransportAddress("localhost", 9300));) {
+             Client elasticSearchClient = new TransportClient(ImmutableSettings.settingsBuilder().put("cluster.name","Filoutubs").build())
+                     .addTransportAddress(new InetSocketTransportAddress("localhost", 9300));) {
 
             checkIndexExists("towns", elasticSearchClient);
 
