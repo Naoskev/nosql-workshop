@@ -18,7 +18,7 @@ public class ApplicationModule extends AbstractModule {
         bind(MongoDB.class);
         bind(InstallationService.class);
         bind(SearchService.class);
-        bindConstant().annotatedWith(Names.named(ES_HOST)).to("localhost");
+        bindConstant().annotatedWith(Names.named(ES_HOST)).to("172.17.2.24");
         bindConstant().annotatedWith(Names.named(ES_TRANSPORT_PORT)).to(9300);
     }
 }

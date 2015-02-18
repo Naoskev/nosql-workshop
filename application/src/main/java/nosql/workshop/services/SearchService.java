@@ -9,20 +9,21 @@ import com.google.inject.name.Named;
 import nosql.workshop.model.Installation;
 import nosql.workshop.model.suggest.TownSuggest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.suggest.SuggestResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.suggest.Suggest;
 import org.elasticsearch.search.suggest.term.TermSuggestionBuilder;
 import org.elasticsearch.index.query.QueryBuilders.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
+import java.util.*;
 
 /**
  *
@@ -43,7 +44,9 @@ public class SearchService {
 
     @Inject
     public SearchService(@Named(ES_HOST) String host, @Named(ES_TRANSPORT_PORT) int transportPort) {
-        elasticSearchClient = new TransportClient().addTransportAddress(new InetSocketTransportAddress(host, transportPort));
+
+        elasticSearchClient = new TransportClient(ImmutableSettings.settingsBuilder().put("cluster.name","Filoutubs").build())
+        .addTransportAddress(new InetSocketTransportAddress(host, transportPort));
 
         objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -56,8 +59,6 @@ public class SearchService {
      */
     public List<Installation> search(String searchQuery) {
         // TODO - DONE - codez le service
-        //Node node = nodeBuilder().client(true).node();
-        //Client client = node.client();
         SearchResponse response = elasticSearchClient.prepareSearch(INSTALLATIONS_INDEX)
                 .setTypes(INSTALLATION_TYPE)
                 .setQuery(QueryBuilders.queryString(searchQuery))
@@ -65,12 +66,8 @@ public class SearchService {
                 .actionGet();
 
         List<Installation> installationList = new ArrayList<Installation>();
-        try {
-            for (SearchHit sh : response.getHits()) {
-                installationList.add(objectMapper.readValue(sh.getSourceAsString(), Installation.class));
-            }
-        } catch (IOException e){
-            e.printStackTrace();
+        for (SearchHit sh : response.getHits()) {
+            installationList.add(mapToInstallation(sh));
         }
         return installationList;
     }
@@ -89,26 +86,32 @@ public class SearchService {
         }
     }
 
-    public List<TownSuggest> suggestTownName(String townName){
-        // TODO codez le service
+    /**
+     * Transforme un résultat de recherche ES en objet installation.
+     *
+     * @param searchHit l'objet ES.
+     * @return l'installation.
+     */
+    private TownSuggest mapToTownSuggest(SearchHit searchHit) {
+        try {
+            return objectMapper.readValue(searchHit.getSourceAsString(), TownSuggest.class);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-        SearchResponse response = elasticSearchClient.prepareSuggest(TOWNS_INDEX)
-                .addSuggestion(new TermSuggestionBuilder("term").field(""))
-                //.setQuery(QueryBuilders.queryString(townName))
-                //.execute()
-                //.actionGet();
+    public List<TownSuggest> suggestTownName(String townName){
+        // TODO - DONE - codez le service
+
+        SearchResponse response = elasticSearchClient.prepareSearch(TOWNS_INDEX)
+                .setTypes(TOWNS_INDEX)
+                .setQuery(QueryBuilders.wildcardQuery("townName", townName + "*"))
+                .execute()
+                .actionGet();
 
         List<TownSuggest> townSuggestList = new ArrayList<TownSuggest>();
-        try {
-            for (SearchHit sh : response.getHits()){
-                townSuggestList.add(objectMapper.readValue(sh.getSourceAsString(), TownSuggest.class));
-            }
-        } catch (JsonMappingException e1) {
-            e1.printStackTrace();
-        } catch (JsonParseException e1) {
-            e1.printStackTrace();
-        } catch (IOException e1) {
-            e1.printStackTrace();
+        for (SearchHit sh : response.getHits()) {
+            townSuggestList.add(mapToTownSuggest(sh));
         }
         return townSuggestList;
     }
