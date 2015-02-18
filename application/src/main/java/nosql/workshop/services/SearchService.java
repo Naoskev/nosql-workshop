@@ -4,14 +4,19 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import com.mongodb.QueryBuilder;
 import nosql.workshop.model.Installation;
 import nosql.workshop.model.suggest.TownSuggest;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -45,8 +50,22 @@ public class SearchService {
      * @return la listes de installations
      */
     public List<Installation> search(String searchQuery) {
-        // TODO codez le service
-        throw new UnsupportedOperationException();
+        // TODO - DONE - codez le service
+        SearchResponse response = elasticSearchClient.prepareSearch(INSTALLATIONS_INDEX)
+                .setTypes(INSTALLATION_TYPE)
+                .setQuery(QueryBuilders.queryString(searchQuery))
+                .execute()
+                .actionGet();
+
+        List<Installation> installationList = new ArrayList<Installation>();
+        try {
+            for (SearchHit sh : response.getHits()) {
+                installationList.add(objectMapper.readValue(sh.getSourceAsString(), Installation.class));
+            }
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        return installationList;
     }
 
     /**
@@ -65,11 +84,13 @@ public class SearchService {
 
     public List<TownSuggest> suggestTownName(String townName){
         // TODO codez le service
+
         throw new UnsupportedOperationException();
     }
 
     public Double[] getTownLocation(String townName) {
         // TODO codez le service
+
         throw new UnsupportedOperationException();
     }
 }
