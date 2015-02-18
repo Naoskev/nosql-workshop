@@ -6,6 +6,7 @@ import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import java.net.UnknownHostException;
 
@@ -21,7 +22,8 @@ public class MongoDbToElasticsearch {
         MongoClient mongoClient = null;
 
         long startTime = System.currentTimeMillis();
-        try (Client elasticSearchClient = new TransportClient().addTransportAddress(new InetSocketTransportAddress(ES_DEFAULT_HOST, ES_DEFAULT_PORT));){
+        try (Client elasticSearchClient = new TransportClient(ImmutableSettings.settingsBuilder().put("cluster.name","Filoutubs").build())
+                .addTransportAddress(new InetSocketTransportAddress(ES_DEFAULT_HOST, ES_DEFAULT_PORT));){
             checkIndexExists("installations", elasticSearchClient);
 
             mongoClient = new MongoClient();

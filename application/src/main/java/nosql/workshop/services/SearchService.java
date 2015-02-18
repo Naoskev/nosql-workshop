@@ -1,6 +1,8 @@
 package nosql.workshop.services;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -14,6 +16,7 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.suggest.term.TermSuggestionBuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -51,6 +54,8 @@ public class SearchService {
      */
     public List<Installation> search(String searchQuery) {
         // TODO - DONE - codez le service
+        //Node node = nodeBuilder().client(true).node();
+        //Client client = node.client();
         SearchResponse response = elasticSearchClient.prepareSearch(INSTALLATIONS_INDEX)
                 .setTypes(INSTALLATION_TYPE)
                 .setQuery(QueryBuilders.queryString(searchQuery))
@@ -85,24 +90,25 @@ public class SearchService {
     public List<TownSuggest> suggestTownName(String townName){
         // TODO codez le service
 
-        SearchResponse response = elasticSearchClient.prepareSearch(TOWNS_INDEX)
-                .setTypes(TOWN_TYPE)
-                .setQuery(QueryBuilders.queryString(townName))
-                .execute()
-                .actionGet();
+        SearchResponse response = elasticSearchClient.prepareSuggest(TOWNS_INDEX)
+                .addSuggestion(new TermSuggestionBuilder("term").field(""))
+                //.setQuery(QueryBuilders.queryString(townName))
+                //.execute()
+                //.actionGet();
 
         List<TownSuggest> townSuggestList = new ArrayList<TownSuggest>();
-
         try {
-            for (SearchHit sh : response.getHits()) {
-                TownSuggest townSuggest = new TownSuggest(sh.,new ArrayList<Double>());
-                townSuggestList.add(townSuggest);
+            for (SearchHit sh : response.getHits()){
+                townSuggestList.add(objectMapper.readValue(sh.getSourceAsString(), TownSuggest.class));
             }
-        } catch (IOException e){
-            e.printStackTrace();
+        } catch (JsonMappingException e1) {
+            e1.printStackTrace();
+        } catch (JsonParseException e1) {
+            e1.printStackTrace();
+        } catch (IOException e1) {
+            e1.printStackTrace();
         }
-
-        throw new UnsupportedOperationException();
+        return townSuggestList;
     }
 
     public Double[] getTownLocation(String townName) {
