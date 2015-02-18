@@ -119,7 +119,7 @@ public class SearchService {
     public Double[] getTownLocation(String townName) {
         // TODO codez le service
         QueryBuilder query = QueryBuilders.matchQuery("townName", townName);
-
+        Double [] location = null;
 
         try {
             SearchResponse response = this.elasticSearchClient.prepareSearch("towns","town").setQuery(query).execute().get();
@@ -131,5 +131,6 @@ public class SearchService {
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
+        return location;
     }
 }
