@@ -45,7 +45,6 @@ public class MongoDbToElasticsearch {
                     bulkRequest.add(elasticSearchClient.prepareIndex("installations", "installation", objectId)
                         .setSource(object.toMap())
                     );
-
             }
             BulkResponse bulkItemResponses = bulkRequest.execute().actionGet();
 
