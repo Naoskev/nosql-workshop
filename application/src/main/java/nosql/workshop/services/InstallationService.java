@@ -128,9 +128,19 @@ public class InstallationService {
         DBObject textScore =new BasicDBObject("$meta", "textScore");
         DBObject projectionAndSort = new BasicDBObject("score", textScore);
 
+        DBObject index = new BasicDBObject("nom", "text")
+                .append("adresse.commune", "text");
+        DBObject weights = new BasicDBObject("nom", 3)
+                .append("adresse.commune", 10);
+        DBObject options = new BasicDBObject("weight", weights)
+                .append("default_language", "french");
+
+        installations.getDBCollection().createIndex(index, options);
+
         MongoCursor<Installation> cursor = installations.find("{$text: {$search:  \""+searchQuery+"\", $language: 'french'} }")
                .projection(projectionAndSort.toString())
                .sort(projectionAndSort.toString())
+                .limit(10)
                .as(Installation.class);
 
         List<Installation> list = new ArrayList<>();
