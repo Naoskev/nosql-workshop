@@ -7,9 +7,6 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
-
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.net.UnknownHostException;
 
 import static nosql.workshop.batch.elasticsearch.util.ElasticSearchBatchUtils.*;
@@ -33,7 +30,7 @@ public class MongoDbToElasticsearch {
             DBCursor cursor = ElasticSearchBatchUtils.getMongoCursorToAllInstallations(mongoClient);
 
             // TODO prepare bulk insert to Elastic Search
-            BulkRequestBuilder bulkRequest = null;
+            BulkRequestBuilder bulkRequest = elasticSearchClient.prepareBulk();
 
             while (cursor.hasNext()) {
                 DBObject object = cursor.next();
@@ -42,6 +39,11 @@ public class MongoDbToElasticsearch {
                 object.removeField("dateMiseAJourFiche");
 
                 // TODO codez l'écriture du document dans ES
+
+                    bulkRequest.add(elasticSearchClient.prepareIndex("installations", "installation", objectId)
+                        .setSource(object.toMap())
+                    );
+
             }
             BulkResponse bulkItemResponses = bulkRequest.execute().actionGet();
 
