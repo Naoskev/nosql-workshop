@@ -59,7 +59,7 @@ public class InstallationsImporter {
         basicDBObject.put("adresse",addressObject);
         // Create the location field
         BasicDBObject locationObject = new BasicDBObject();
-        String coordinates [] = {columns[9],columns[10]};
+        double coordinates [] = {Double.parseDouble(columns[9]),Double.parseDouble(columns[10])};
         locationObject.put("type","Point");
         locationObject.put("coordinates",coordinates);
         basicDBObject.put("location",locationObject);

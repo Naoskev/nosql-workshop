@@ -71,7 +71,6 @@ public class InstallationService {
         long count = count();
         int random = new Random().nextInt((int) count);
         // TODO - DONE - codez le service
-        Installation installation = null;
         return installations.find().skip(random).limit(1).as(Installation.class).next();
     }
 
@@ -105,9 +104,9 @@ public class InstallationService {
     public List<CountByActivity> countByActivity() {
         // TODO - DONE - codez le service
         return installations.aggregate(
-                "{$unwind: '$equipements'}").and("{$unwind: '$equipements.activites'}")
-                .and("{$group: { _id : '$equipements.activites', compteur : {$sum : 1}}}")
-                .and("{$project: {_id: 0 , activite : '$_id', compteur : 1}}").and("{$sort: {compteur : -1}}")
+                "{$unwind : '$equipements'}").and("{$unwind : '$equipements.activites'}")
+                .and("{$group: { _id : '$equipements.activites', total : {$sum : 1}}}")
+                .and("{$project: {_id: 0 , activite : '$_id', total : 1}}")
                 .as(CountByActivity.class);
     }
 
@@ -125,7 +124,7 @@ public class InstallationService {
     public List<Installation> search(String searchQuery) {
         // TODO - Done- codez le service
 
-        DBObject textScore =new BasicDBObject("$meta", "textScore");
+        DBObject textScore = new BasicDBObject("$meta", "textScore");
         DBObject projectionAndSort = new BasicDBObject("score", textScore);
 
         DBObject index = new BasicDBObject("nom", "text")
@@ -160,6 +159,26 @@ public class InstallationService {
      */
     public List<Installation> geosearch(double lat, double lng, double distance) {
         // TODO codez le service
-        throw new UnsupportedOperationException();
+
+        installations.ensureIndex(new BasicDBObject("location","2dsphere").toString());
+
+        MongoCursor<Installation> cursor =
+                installations.find(
+                "{'location' :" +
+                        "{ $near : " +
+                                "{ $geometry : " +
+                                    "{ type : 'Point' ," +
+                                        "coordinates : [ "+lng+", "+lat+"]" +
+                                    "}," +
+                                    "$maxDistance : "+ distance +
+                                "}" +
+                        "}"+
+                "}").as(Installation.class);
+
+        List<Installation> list = new ArrayList<>();
+        for(Installation i : cursor){
+            list.add(i);
+        }
+        return list;
     }
 }
