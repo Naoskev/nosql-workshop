@@ -61,7 +61,7 @@ public class ImportTowns {
                     .field("longitude", longitude)
                     .field("latitude", latitude)
                     .endObject();
-            bulkRequest.add(elasticSearchClient.prepareIndex("paysLoire", "town")
+            bulkRequest.add(elasticSearchClient.prepareIndex("towns", "town")
                 .setSource(builder));
         } catch (IOException e) {
             e.printStackTrace();
