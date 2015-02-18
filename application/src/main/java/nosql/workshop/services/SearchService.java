@@ -6,21 +6,23 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import com.mongodb.QueryBuilder;
 import nosql.workshop.model.Installation;
 import nosql.workshop.model.suggest.TownSuggest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.suggest.term.TermSuggestionBuilder;
+import org.elasticsearch.index.query.QueryBuilders.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  *
@@ -113,6 +115,20 @@ public class SearchService {
 
     public Double[] getTownLocation(String townName) {
         // TODO codez le service
+        QueryBuilder query = QueryBuilders.matchQuery("townName", townName);
+
+
+        try {
+            SearchResponse response = this.elasticSearchClient.prepareSearch("towns","town").setQuery(query).execute().get();
+            if(response.getHits().totalHits() > 0){
+
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
 
         throw new UnsupportedOperationException();
     }
